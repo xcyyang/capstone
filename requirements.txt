@@ -9,3 +9,5 @@ pyparsing
 pysondb
 PyYAML
 requests
+platformdirs
+dynaconf
