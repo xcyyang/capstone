@@ -11,3 +11,4 @@ PyYAML
 requests
 platformdirs
 dynaconf
+types-PyYAML

@@ -1,0 +1,60 @@
+import * as dotenv from "dotenv";
+import YAML from 'yaml';
+import fs from 'fs';
+
+import { HardhatUserConfig, task } from "hardhat/config";
+import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-waffle";
+import web3 from "@nomiclabs/hardhat-web3";
+import "@typechain/hardhat";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+
+dotenv.config();
+const yaml_config_file = fs.readFileSync('config.yml', 'utf8');
+const yaml_config = YAML.parse(yaml_config_file);
+
+// This is a sample Hardhat task. To learn how to create your own go to
+// https://hardhat.org/guides/create-task.html
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+});
+
+// You need to export an object to set up your config
+// Go to https://hardhat.org/config/ to learn more
+
+const config: HardhatUserConfig = {
+  solidity: yaml_config.networks.solidity_version,
+  networks: {
+    hardhat: {
+      forking: {
+        url: yaml_config.networks.url,
+        blockNumber: parseInt(yaml_config.networks.block_number) == 0? undefined : parseInt(yaml_config.networks.block_number),
+      },
+      loggingEnabled: false
+    },
+    hardhat_without_forking:{
+      url: yaml_config.networks.url,
+      accounts:
+      yaml_config.networks.private_key !== "" ? [yaml_config.networks.private_key]: [],
+    },
+    ropsten: {
+      url: process.env.ROPSTEN_URL || "",
+      accounts:
+        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    },
+  },
+  gasReporter: {
+    enabled: process.env.REPORT_GAS !== undefined,
+    currency: "USD",
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
+};
+
+export default config;

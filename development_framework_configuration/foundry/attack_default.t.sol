@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.10;
+
+import "forge-std/Test.sol";
+import "src/Exploit.sol";
+
+contract Attack is Test{
+
+    function strToUint(string memory _str) public pure returns(uint256 res, bool err) {
+    
+        for (uint256 i = 0; i < bytes(_str).length; i++) {
+            if ((uint8(bytes(_str)[i]) - 48) < 0 || (uint8(bytes(_str)[i]) - 48) > 9) {
+                return (0, false);
+            }
+            res += (uint8(bytes(_str)[i]) - 48) * 10**(bytes(_str).length - i - 1);
+        }
+    
+        return (res, true);
+    }
+    
+    function setUp() public {
+        string memory root = vm.projectRoot();
+        string memory json_path = string.concat(root, "/config.json");
+        string memory json_file = vm.readFile(json_path);
+
+        // Prepare Fork Network
+        bytes memory node_bytes = vm.parseJson(json_file,".networks.node");
+        bytes memory block_number_bytes = vm.parseJson(json_file,".networks.block_number");
+        string memory node = abi.decode(node_bytes, (string));
+        console.log(node);
+        string memory block_number_string = abi.decode(block_number_bytes, (string));
+        uint256 block_number;
+        bool res;
+        (block_number, res) = strToUint(block_number_string);
+        console.log(block_number);
+        vm.createSelectFork(node, block_number);
+    }
+
+    function testAttack() public{
+        ContractTest exploit = new ContractTest();
+        vm.deal(address(exploit), 1000*1e18);
+        exploit.testExploit();
+    }
+
+}

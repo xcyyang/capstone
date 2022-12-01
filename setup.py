@@ -39,6 +39,7 @@ setup(
     author="xcyyang",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
+    include_package_data=True,
     entry_points={
         "console_scripts": ["web3_exploit_framework = web3_exploit_framework.__main__:main"]
     },
