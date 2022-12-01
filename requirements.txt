@@ -8,6 +8,8 @@ cmd2
 pyparsing
 pysondb
 PyYAML
+toml
 requests
 platformdirs
 dynaconf
+types-PyYAML
